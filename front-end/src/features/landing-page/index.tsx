@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 const Landing = () => {
   return (
     <Box>
-      <Header />
+      <Header withBorder={false} />
     </Box>
   );
 };

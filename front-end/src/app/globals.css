@@ -14,11 +14,11 @@ body::-webkit-scrollbar {
 }
 
 .layout {
-  max-width: 1440px;
+  max-width: 1000px;
   margin: auto;
 }
 
-@media (max-width: 1500px) {
+@media (max-width: 1300px) {
   .layout {
     padding-left: 50px;
     padding-right: 50px;
