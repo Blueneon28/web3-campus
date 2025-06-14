@@ -4,3 +4,30 @@
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
 }
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.layout {
+  max-width: 1440px;
+  margin: auto;
+}
+
+@media (max-width: 1500px) {
+  .layout {
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+}
+
+@media (max-width: 770px) {
+  .layout {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
