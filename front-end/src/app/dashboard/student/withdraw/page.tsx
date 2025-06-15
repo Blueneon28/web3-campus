@@ -1,3 +1,5 @@
+/** @format */
+
 import StudentDashboardWithdraw from "@/features/student/withdraw";
 import React from "react";
 

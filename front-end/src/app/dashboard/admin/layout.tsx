@@ -1,3 +1,5 @@
+/** @format */
+
 "use client";
 import Header from "@/components/Header";
 import SidebarItem from "@/components/SidebarItem";
