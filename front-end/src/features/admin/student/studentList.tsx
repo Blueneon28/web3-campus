@@ -4,7 +4,7 @@
 
 import { useReadContract } from "wagmi";
 
-import { ERC721_ADR, ERC721_ABI } from "@/constants";
+import { contracts } from "@/constants/contracts";
 import { Button, Table, Group, Text, Paper, Stack, Badge } from "@mantine/core";
 import { Pencil, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -32,11 +32,12 @@ interface StudentListItem {
 export default function StudentList() {
   const router = useRouter();
   const [list, setList] = useState<StudentListItem[]>([]);
+  const { studentID } = contracts;
 
   //   const { data, isLoading, error, refetch } = useReadContract({
   const { data: listStudent, refetch: refetchListStudent } = useReadContract({
-    address: ERC721_ADR,
-    abi: ERC721_ABI,
+    address: studentID.address,
+    abi: studentID.abi,
     functionName: "getAllStudents",
   });
 

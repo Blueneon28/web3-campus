@@ -10,8 +10,7 @@ import {
 } from "wagmi";
 import { waitForTransactionReceipt } from "@wagmi/core";
 
-import { ERC721_ADR, ERC721_ABI } from "@/constants";
-
+import { contracts } from "@/constants/contracts";
 import { config } from "@/providers/Web3Provider";
 
 import {
@@ -61,13 +60,14 @@ export default function StudentForm() {
   const router = useRouter();
   const { address: walletAddress } = useAccount();
   const { writeContractAsync } = useWriteContract();
+  const { studentID } = contracts;
 
   const [detail, setDetail] = useState<StudentDetail>();
   const [isLoading, setLoading] = useState<boolean>(false);
 
   const { data: detailStudent } = useReadContract({
-    address: ERC721_ADR,
-    abi: ERC721_ABI,
+    address: studentID.address,
+    abi: studentID.abi,
     functionName: "getStudentByAddress",
     args: id ? [id] : undefined,
     query: {
@@ -107,8 +107,8 @@ export default function StudentForm() {
     try {
       setLoading(true);
       const result = await writeContractAsync({
-        address: ERC721_ADR,
-        abi: ERC721_ABI,
+        address: studentID.address,
+        abi: studentID.abi,
         functionName: id ? "updateStudentInfo" : "issueStudentID",
         args: payload,
         account: walletAddress as `0x${string}`,
@@ -126,8 +126,8 @@ export default function StudentForm() {
   };
 
   useWatchContractEvent({
-    address: ERC721_ADR,
-    abi: ERC721_ABI,
+    address: studentID.address,
+    abi: studentID.abi,
     eventName: "StudentIDIssued",
     onLogs(log) {
       console.log("log", log);
@@ -136,8 +136,8 @@ export default function StudentForm() {
   });
 
   useWatchContractEvent({
-    address: ERC721_ADR,
-    abi: ERC721_ABI,
+    address: studentID.address,
+    abi: studentID.abi,
     eventName: "StudentIDUpdated",
     onLogs(log) {
       console.log("log", log);

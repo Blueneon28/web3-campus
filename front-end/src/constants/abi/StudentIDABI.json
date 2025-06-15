@@ -248,6 +248,37 @@
       },
       {
         "indexed": false,
+        "internalType": "string",
+        "name": "nim",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "student",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "expiryDate",
+        "type": "uint256"
+      }
+    ],
+    "name": "StudentIDUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "bool",
         "name": "isActive",
         "type": "bool"
@@ -377,7 +408,7 @@
           { "internalType": "bool", "name": "isActive", "type": "bool" },
           { "internalType": "uint8", "name": "semester", "type": "uint8" }
         ],
-        "internalType": "struct StudentIDv3.StudentData[]",
+        "internalType": "struct StudentID.StudentData[]",
         "name": "students",
         "type": "tuple[]"
       },
@@ -420,7 +451,7 @@
           { "internalType": "bool", "name": "isActive", "type": "bool" },
           { "internalType": "uint8", "name": "semester", "type": "uint8" }
         ],
-        "internalType": "struct StudentIDv3.StudentData",
+        "internalType": "struct StudentID.StudentData",
         "name": "data",
         "type": "tuple"
       },
@@ -453,7 +484,7 @@
           { "internalType": "bool", "name": "isActive", "type": "bool" },
           { "internalType": "uint8", "name": "semester", "type": "uint8" }
         ],
-        "internalType": "struct StudentIDv3.StudentData",
+        "internalType": "struct StudentID.StudentData",
         "name": "data",
         "type": "tuple"
       }
@@ -486,7 +517,7 @@
           { "internalType": "bool", "name": "isActive", "type": "bool" },
           { "internalType": "uint8", "name": "semester", "type": "uint8" }
         ],
-        "internalType": "struct StudentIDv3.StudentData",
+        "internalType": "struct StudentID.StudentData",
         "name": "data",
         "type": "tuple"
       }
