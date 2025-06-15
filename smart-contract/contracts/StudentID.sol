@@ -33,8 +33,17 @@ contract StudentID is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     mapping(string => uint256) public nimToTokenId; // Prevent duplicate NIM
     mapping(address => uint256) public addressToTokenId; // One ID per address
     
+    // Array untuk menyimpan semua token IDs yang pernah di-mint
+    uint256[] private _allTokenIds;
+    
     // Events
     event StudentIDIssued(
+        uint256 indexed tokenId, 
+        string nim, 
+        address student,
+        uint256 expiryDate
+    );
+    event StudentIDUpdated(
         uint256 indexed tokenId, 
         string nim, 
         address student,
@@ -110,7 +119,10 @@ contract StudentID is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
         nimToTokenId[nim] = tokenId;
         addressToTokenId[to] = tokenId;
         
-        // 8. EMIT EVENT
+        // 8. ADD TO ALL TOKENS ARRAY
+        _allTokenIds.push(tokenId);
+        
+        // 9. EMIT EVENT
         emit StudentIDIssued(tokenId, nim, to, expiryDate);
     }
     
@@ -222,31 +234,111 @@ contract StudentID is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
     }
 
     /**
-     * @dev Override transfer functions to make non-transferable
+     * @dev Get student info by address including URI
+     * @param studentAddress Address of the student
+     * @return tokenId Token ID of the student
+     * @return data Student data
+     * @return uri Token URI containing metadata
      */
-    function _update(
-        address to,
+    function getStudentByAddress(address studentAddress) public view returns (
         uint256 tokenId,
-        address auth
-    ) internal override returns (address) {
-        // TODO: Make soulbound (non-transferable)
-        // Only allow minting (from == address(0)) and burning (to == address(0))
-        // require(from == address(0) || to == address(0), "SID is non-transferable");
-        // super._beforeTokenTransfer(from, to, tokenId, batchSize);
-        address from = _ownerOf(tokenId);
-        require(from == address(0) || to == address(0), "SID is non-transferable");
-            
-        StudentData storage student = studentData[tokenId];
-
-        // BURN
-        if(to == address(0)){
-            delete nimToTokenId[student.nim];
-            delete studentData[tokenId];
-            delete addressToTokenId[from];
-        }
-
-        return super._update(to, tokenId, auth);
+        StudentData memory data,
+        string memory uri
+    ) {
+        require(studentAddress != address(0), "Invalid address");
+        
+        tokenId = addressToTokenId[studentAddress];
+        require(tokenId != 0, "No student ID found for this address");
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
+        
+        data = studentData[tokenId];
+        uri = tokenURI(tokenId);
+        
+        return (tokenId, data, uri);
     }
+
+    function getAllStudents() public view returns (
+        uint256[] memory tokenIds,
+        address[] memory addresses,
+        StudentData[] memory students,
+        string[] memory uris
+    ) {
+        // Count active tokens (non-burned)
+        uint256 activeCount = 0;
+        for (uint256 i = 0; i < _allTokenIds.length; i++) {
+            if (_ownerOf(_allTokenIds[i]) != address(0)) {
+                activeCount++;
+            }
+        }
+        
+        // Initialize arrays with active count
+        tokenIds = new uint256[](activeCount);
+        addresses = new address[](activeCount);
+        students = new StudentData[](activeCount);
+        uris = new string[](activeCount);
+        
+        // Fill arrays with active student data
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < _allTokenIds.length; i++) {
+            uint256 tokenId = _allTokenIds[i];
+            address owner = _ownerOf(tokenId);
+            
+            if (owner != address(0)) {
+                tokenIds[currentIndex] = tokenId;
+                addresses[currentIndex] = owner;
+                students[currentIndex] = studentData[tokenId];
+                uris[currentIndex] = tokenURI(tokenId);
+                currentIndex++;
+            }
+        }
+        
+        return (tokenIds, addresses, students, uris);
+    }
+
+    function getTotalStudentsCount() public view returns (uint256) {
+        return _allTokenIds.length;
+    }
+
+    /**
+     * @dev Get total number of active students (excluding burned tokens)
+     */
+    function getActiveStudentsCount() public view returns (uint256) {
+        uint256 activeCount = 0;
+        for (uint256 i = 0; i < _allTokenIds.length; i++) {
+            if (_ownerOf(_allTokenIds[i]) != address(0)) {
+                activeCount++;
+            }
+        }
+        return activeCount;
+    }
+
+    function updateStudentInfo(
+        uint256 tokenId,
+        string memory name,
+        string memory major,
+        string memory uri
+    ) public onlyOwner {
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
+        
+        StudentData storage student = studentData[tokenId];
+        
+        // Update name if provided
+        if (bytes(name).length > 0) {
+            student.name = name;
+        }
+        
+        // Update major if provided
+        if (bytes(major).length > 0) {
+            student.major = major;
+        }
+        
+        // Update URI if provided
+        if (bytes(uri).length > 0) {
+            _setTokenURI(tokenId, uri);
+        }
+        emit StudentIDUpdated(tokenId,student.nim,_ownerOf(tokenId),student.expiryDate);
+    }
+
 
     // Override functions required untuk multiple inheritance
     function tokenURI(uint256 tokenId)
