@@ -34,7 +34,7 @@ const StudentDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
     <Box>
       <Header withBorder />
       <Flex className="layout" mt="50px">
-        <Box w="30%">
+        <Box w="20%">
           <Stack gap="30px">
             {sidebarItems.map(({ title, icon: Icon, path }) => {
               const isActive =
@@ -59,7 +59,7 @@ const StudentDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
             })}
           </Stack>
         </Box>
-        <Box w="70%">{children}</Box>
+        <Box w="80%">{children}</Box>
       </Flex>
     </Box>
   );

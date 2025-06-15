@@ -4,7 +4,7 @@ import TopupForm from "./components/TopupForm";
 
 const StudentDashboardTopup = () => {
   return (
-    <Box w="75%">
+    <Box w="65%" m='auto'>
       <TopupForm />
     </Box>
   );

@@ -1,6 +1,14 @@
 "use client";
 import { Colors } from "@/constants/colors";
-import { Box, Button, NumberInput, Paper, Stack, Text } from "@mantine/core";
+import {
+  Box,
+  Button,
+  NumberInput,
+  Paper,
+  Select,
+  Stack,
+  Text,
+} from "@mantine/core";
 import React, { useState } from "react";
 
 const WithdrawForm = () => {
@@ -54,7 +62,7 @@ const WithdrawForm = () => {
             prefix="IDR "
           />
         </Stack>
-        <Box mt="20px">
+        <Box>
           <Text size="12px" fw="500">
             Exchange Rate
           </Text>
@@ -62,6 +70,23 @@ const WithdrawForm = () => {
             1 Campus Credit = 1 IDR
           </Text>
         </Box>
+        <Select
+          mt="20px"
+          placeholder="Destination Bank"
+          styles={{
+            input: {
+              height: "60px",
+              borderRadius: "10px",
+            },
+            dropdown: {
+              borderRadius: "10px",
+            },
+            option: {
+              height: "40px",
+            },
+          }}
+          data={[{ label: "BCA 7880123400", value: "BCA" }]}
+        />
         <Button mt="20px" h="50px" radius="50px" color={Colors.primary}>
           Withdraw
         </Button>

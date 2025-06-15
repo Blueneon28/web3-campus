@@ -4,7 +4,7 @@ import WithdrawForm from "./components/WithdrawForm";
 
 const StudentDashboardWithdraw = () => {
   return (
-    <Box w="75%">
+    <Box w="65%" m="auto">
       <WithdrawForm />
     </Box>
   );
