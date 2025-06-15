@@ -4,7 +4,7 @@ export const CampusCreditABI = CAMPUS_CONTRACT_ABI_JSON;
 
 export const contracts = {
   campusCredit: {
-    address: "0xEb87243B2c4b8553e001ff7645b2E07A5578c969" as const,
+    address: "0xfCac010F8A91FB38c9666a70d48bc27C10C29eBF" as const,
     abi: CampusCreditABI,
   },
   // studentID: {

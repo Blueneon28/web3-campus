@@ -26,6 +26,14 @@ contract CampusCredit is ERC20, ERC20Burnable, Pausable, AccessControl {
         _mint(msg.sender, 100_000 * (10 ** decimals()));
     }
 
+    // Events
+    event WithdrawnExecuted(address indexed user, uint256 amount);
+    event TopupExecuted(address indexed student, uint256 amount);
+    event TransferExecuted(address indexed from, address to, uint256 amount);
+    event CashbackReceived(address indexed student, uint256 amount);
+    event RegisterMerchantExecuted(address indexed merchant);
+    event UnregisterMerchantExecuted(address indexed merchant);
+
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
     }
@@ -40,6 +48,8 @@ contract CampusCredit is ERC20, ERC20Burnable, Pausable, AccessControl {
 
     function studentTopup(uint256 amount) public {
         _mint(msg.sender, amount);
+
+        emit TopupExecuted(msg.sender, amount);
     }
 
     function registerMerchant(
@@ -48,6 +58,8 @@ contract CampusCredit is ERC20, ERC20Burnable, Pausable, AccessControl {
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         isMerchant[merchant] = true;
         merchantName[merchant] = name;
+
+        emit RegisterMerchantExecuted(merchant);
     }
 
     function unregisterMerchant(
@@ -55,10 +67,14 @@ contract CampusCredit is ERC20, ERC20Burnable, Pausable, AccessControl {
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         isMerchant[merchant] = false;
         merchantName[merchant] = "";
+
+        emit UnregisterMerchantExecuted(merchant);
     }
 
     function processWithdrawal(uint256 amount) public {
-        burnFrom(msg.sender, amount);
+        burn(amount);
+
+        emit WithdrawnExecuted(msg.sender, amount);
     }
 
     function setDailyLimit(
@@ -72,6 +88,8 @@ contract CampusCredit is ERC20, ERC20Burnable, Pausable, AccessControl {
         _checkSpendingLimit(msg.sender, amount);
         _updateSpending(msg.sender, amount);
         _transfer(msg.sender, to, amount);
+
+        emit TransferExecuted(msg.sender, to, amount);
     }
 
     function transferWithCashback(address merchant, uint256 amount) public {
@@ -80,8 +98,11 @@ contract CampusCredit is ERC20, ERC20Burnable, Pausable, AccessControl {
         _updateSpending(msg.sender, amount);
 
         _transfer(msg.sender, merchant, amount);
+        emit TransferExecuted(msg.sender, merchant, amount);
+
         uint256 cashback = (amount * cashbackPercentage) / 100;
         _mint(msg.sender, cashback);
+        emit CashbackReceived(msg.sender, cashback);
     }
 
     function _checkSpendingLimit(
