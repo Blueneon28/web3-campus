@@ -1,10 +1,81 @@
 "use client";
 import { Colors } from "@/constants/colors";
 import { Box, Button, NumberInput, Paper, Stack, Text } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import {
+  useAccount,
+  useReadContract,
+  useWriteContract,
+  useWatchContractEvent,
+} from "wagmi";
+import { waitForTransactionReceipt } from "@wagmi/core";
+import { config } from "@/providers/Web3Provider";
+import { contracts } from "@/constants/contracts";
+import { parseUnits } from "viem";
+
+const campusCreditContract = {
+  address: contracts.campusCredit.address as `0x${string}`,
+  abi: contracts.campusCredit.abi,
+};
 
 const TopupForm = () => {
-  const [amount, setAmount] = useState<string | number>(0);
+  const { address, isConnected } = useAccount();
+  const { writeContractAsync } = useWriteContract();
+  const [amount, setAmount] = useState<string | number>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleTopup = async () => {
+    if (!isConnected) return;
+
+    setIsLoading(true);
+
+    toast.loading(`Loading...`, {
+      style: {
+        background: Colors.primary,
+        color: "white",
+        borderRadius: "12px",
+        fontFamily: "Inter, sans-serif",
+      },
+    });
+
+    try {
+      const result = await writeContractAsync({
+        ...campusCreditContract,
+        functionName: "studentTopup",
+        args: [parseUnits(amount.toString(), 18)],
+        account: address as `0x${string}`,
+      });
+
+      toast.dismiss();
+      toast.loading("Confirming topup...", {
+        style: {
+          background: Colors.primary,
+          color: "white",
+          borderRadius: "12px",
+          fontFamily: "Inter, sans-serif",
+        },
+      });
+
+      await waitForTransactionReceipt(config, {
+        hash: result as `0x${string}`,
+      });
+
+      toast.dismiss();
+    } catch (error) {
+      console.error("Topup failed:", error);
+      toast.dismiss();
+      toast.error("Topup failed. Please try again.", {
+        style: {
+          borderRadius: "12px",
+          fontFamily: "Inter, sans-serif",
+        },
+      });
+    } finally {
+      setIsLoading(false);
+      setAmount(0);
+    }
+  };
 
   return (
     <Paper
@@ -31,6 +102,7 @@ const TopupForm = () => {
             }}
             thousandSeparator=","
             hideControls
+            value={amount}
             onChange={setAmount}
           />
         </Stack>
@@ -38,7 +110,7 @@ const TopupForm = () => {
           <Text fw="500">You will pay</Text>
           <NumberInput
             disabled
-            value={amount}
+            value={amount === "" ? 0 : amount}
             styles={{
               input: {
                 height: "60px",
@@ -62,7 +134,14 @@ const TopupForm = () => {
             1 Campus Credit = 1 IDR
           </Text>
         </Box>
-        <Button mt="20px" h="50px" radius="50px" color={Colors.primary}>
+        <Button
+          mt="20px"
+          h="50px"
+          radius="50px"
+          color={Colors.primary}
+          loading={isLoading}
+          onClick={() => handleTopup()}
+        >
           Topup
         </Button>
       </Stack>

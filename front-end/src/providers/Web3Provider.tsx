@@ -32,14 +32,14 @@ const monadTestnet: Chain = {
 
 const queryClient = new QueryClient();
 
-const Web3Provider: React.FC<PropsWithChildren> = ({ children }) => {
-  const config = getDefaultConfig({
-    appName: "Web3 Campus",
-    projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "",
-    chains: [monadTestnet],
-    ssr: true,
-  });
+export const config = getDefaultConfig({
+  appName: "Web3 Campus",
+  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "",
+  chains: [monadTestnet],
+  ssr: true,
+});
 
+const Web3Provider: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

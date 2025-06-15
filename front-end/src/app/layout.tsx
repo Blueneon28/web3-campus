@@ -5,6 +5,7 @@ import {
   mantineHtmlProps,
   MantineProvider,
 } from "@mantine/core";
+import { Toaster } from "react-hot-toast";
 import Web3Provider from "@/providers/Web3Provider";
 import "./globals.css";
 import "@mantine/core/styles.css";
@@ -33,7 +34,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Web3Provider>
-          <MantineProvider>{children}</MantineProvider>
+          <MantineProvider>
+            {children}
+            <Toaster position="top-center" />
+          </MantineProvider>
         </Web3Provider>
       </body>
     </html>
