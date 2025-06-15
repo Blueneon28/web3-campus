@@ -38,6 +38,10 @@ contract CampusCredit is ERC20, ERC20Burnable, Pausable, AccessControl {
         _mint(to, amount);
     }
 
+    function studentTopup(uint256 amount) public {
+        _mint(msg.sender, amount);
+    }
+
     function registerMerchant(
         address merchant,
         string memory name
@@ -53,13 +57,8 @@ contract CampusCredit is ERC20, ERC20Burnable, Pausable, AccessControl {
         merchantName[merchant] = "";
     }
 
-    function processWithdrawal(
-        address merchant,
-        uint256 amount
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(isMerchant[merchant], "Invalid merchant");
-
-        burnFrom(merchant, amount);
+    function processWithdrawal(uint256 amount) public {
+        burnFrom(msg.sender, amount);
     }
 
     function setDailyLimit(
