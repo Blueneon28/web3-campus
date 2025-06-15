@@ -1,7 +1,7 @@
 import React from "react";
 
 const MerchantDashboard = () => {
-  return <div>MerchantDashboard</div>;
+  return <div>Profile</div>;
 };
 
 export default MerchantDashboard;
