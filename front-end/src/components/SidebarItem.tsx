@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/colors";
 import { Box, Flex, Text } from "@mantine/core";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -23,7 +24,7 @@ const SidebarItem: React.FC<ISidebarItemProps> = ({
         {icon}
         <Text
           fw={isActive ? "600" : "normal"}
-          color={isActive ? "black" : "gray"}
+          color={isActive ? Colors.primary : "gray"}
         >
           {title}
         </Text>

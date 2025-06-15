@@ -10,6 +10,7 @@ import {
   ShieldUser,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { Colors } from "@/constants/colors";
 
 const sidebarItems = [
   { title: "Profile", icon: ShieldUser, path: "/dashboard/student" },
@@ -49,7 +50,7 @@ const StudentDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
                     <Icon
                       strokeWidth={isActive ? 2 : 1.75}
                       absoluteStrokeWidth
-                      color={isActive ? "black" : "gray"}
+                      color={isActive ? Colors.primary : "gray"}
                     />
                   }
                   route={path}
