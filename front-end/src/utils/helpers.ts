@@ -4,11 +4,11 @@ import { formatUnits, parseUnits } from "viem";
 
 export function shortenAddress(address: string, prefixLen = 5, suffixLen = 4) {
   if (typeof address !== "string" || !address.startsWith("0x")) {
-    throw new Error("Invalid Address.");
+    return "";
   }
 
   if (address.length <= prefixLen + suffixLen) {
-    throw new Error("Address is to short.");
+    return "";
   }
 
   const prefix = address.slice(0, prefixLen);
