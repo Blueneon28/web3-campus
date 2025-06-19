@@ -7,6 +7,7 @@ import {
   BanknoteArrowDown,
   BanknoteArrowUp,
   History,
+  Send,
   ShieldUser,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -23,6 +24,11 @@ const sidebarItems = [
     title: "Withdraw",
     icon: BanknoteArrowDown,
     path: "/dashboard/student/withdraw",
+  },
+  {
+    title: "Transfer",
+    icon: Send,
+    path: "/dashboard/student/transfer",
   },
   { title: "History", icon: History, path: "/dashboard/student/history" },
 ];
