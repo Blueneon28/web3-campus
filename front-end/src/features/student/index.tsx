@@ -2,14 +2,10 @@
 
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAccount, useReadContract } from "wagmi";
-
 import { shortenAddress } from "@/utils/helpers";
-
 import { contracts } from "@/constants/contracts";
-
 import {
   Box,
   Paper,
@@ -26,8 +22,11 @@ import {
   CopyButton,
   Tooltip,
   ThemeIcon,
+  Image,
+  Skeleton,
+  Alert,
 } from "@mantine/core";
-import { User, GraduationCap, IdCard, MapPin, Copy, Check } from "lucide-react";
+import { User, GraduationCap, IdCard, MapPin, Copy, Check, Award, AlertCircle } from "lucide-react";
 
 interface StudentDetail {
   tokenId: number;
@@ -41,32 +40,128 @@ interface StudentDetail {
   uri: string;
 }
 
+interface CertificateDetail {
+  tokenId: string;
+  name: string;
+  category: string;
+  uri: string;
+  amount: number;
+  isValid: boolean;
+  earnedTimestamp: number;
+  metadata?: {
+    description?: string;
+    image?: string;
+  };
+}
+
+const courseBadgeContract = {
+  address: contracts.courseBadge.address,
+  abi: contracts.courseBadge.abi,
+};
+
+// Custom hook untuk mengambil detail sertifikat
+const useCertificateDetails = (address: `0x${string}` | undefined, studentBadges: bigint[] | undefined) => {
+  const [certificates, setCertificates] = useState<CertificateDetail[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCertificateDetails = async () => {
+      if (!address || !studentBadges || studentBadges.length === 0) {
+        setCertificates([]);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const certDetails = await Promise.all(
+          studentBadges.map(async (tokenId) => {
+            try {
+              return {
+                tokenId: tokenId.toString(),
+                name: "Certificate " + tokenId.toString(),
+                category: "Course",
+                uri: "",
+                amount: 1,
+                isValid: true,
+                earnedTimestamp: Date.now() / 1000,
+                metadata: {},
+              };
+            } catch (error) {
+              console.error(`Error fetching certificate ${tokenId}:`, error);
+              return {
+                tokenId: tokenId.toString(),
+                name: "Error loading",
+                category: "Error",
+                uri: "",
+                amount: 0,
+                isValid: false,
+                earnedTimestamp: 0,
+                metadata: {},
+              };
+            }
+          })
+        );
+        setCertificates(certDetails);
+      } catch (error) {
+        console.error("Error fetching certificate details:", error);
+        setError("Failed to load certificate details");
+        setCertificates([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCertificateDetails();
+  }, [address, studentBadges]);
+
+  return { certificates, isLoading, error };
+};
+
 const StudentDashboard = () => {
   const { address, isConnected } = useAccount();
   const { studentID } = contracts;
-
   const [detail, setDetail] = useState<StudentDetail>();
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false);
 
+  // Read contract untuk mendapatkan detail student
   const { data: detailStudent } = useReadContract({
     address: studentID.address,
     abi: studentID.abi,
     functionName: "getStudentByAddress",
     args: address ? [address] : undefined,
-    query: {
+    query: { enabled: !!address },
+  });
+
+  // Read contract untuk mendapatkan daftar certificate
+  const { data: studentBadges, isLoading: isLoadingBadges, error: badgesError } = useReadContract({
+    ...courseBadgeContract,
+    functionName: "getStudentBadges",
+    args: address ? [address as `0x${string}`] : undefined,
+    query: { 
       enabled: !!address,
+      retry: false, // Don't retry on error
+      staleTime: 30000, // Cache for 30 seconds
     },
   });
 
+  // Menggunakan custom hook untuk detail sertifikat
+ const { certificates, isLoading: isLoadingCertificates, error: certificatesError } = useCertificateDetails(
+  address,
+  studentBadges as bigint[] | undefined
+);
+
+  const isNoCertificatesError = badgesError?.message?.includes('returned no data ("0x")');
+  const hasValidBadgesData = studentBadges && Array.isArray(studentBadges) && studentBadges.length > 0;
+
+  // Set detail student
   useEffect(() => {
+    setIsLoadingProfile(true);
     if (!isConnected) {
       setDetail(undefined);
-    }
-  }, [isConnected]);
-
-  useEffect(() => {
-    setLoading(true);
-    if (detailStudent && Array.isArray(detailStudent)) {
+    } else if (detailStudent && Array.isArray(detailStudent)) {
       const output = {
         tokenId: Number(BigInt(detailStudent[0])),
         name: detailStudent[1].name,
@@ -78,20 +173,38 @@ const StudentDashboard = () => {
         status: detailStudent[1].isActive,
         uri: detailStudent[2],
       };
-
       setDetail(output);
     }
-    setLoading(false);
-  }, [detailStudent, address]);
+    setIsLoadingProfile(false);
+  }, [detailStudent, isConnected, address]);
 
-  if (isLoading) {
+  if (isLoadingProfile || isLoadingBadges || isLoadingCertificates) {
     return (
       <Box maw={800} mx="auto" p="md">
         <Paper shadow="xs" radius="md" p="xl">
-          <Text ta="center" c="dimmed">
-            Loading student profile...
-          </Text>
+          <Skeleton height={200} radius="md" mb="lg" />
+          <Skeleton height={100} radius="md" />
         </Paper>
+      </Box>
+    );
+  }
+
+  if (badgesError && !isNoCertificatesError) {
+    return (
+      <Box maw={800} mx="auto" p="md">
+        <Alert icon={<AlertCircle size={16} />} title="Error" color="red">
+          Failed to load certificates: {badgesError?.message || "Unknown error"}
+        </Alert>
+      </Box>
+    );
+  }
+
+  if (certificatesError) {
+    return (
+      <Box maw={800} mx="auto" p="md">
+        <Alert icon={<AlertCircle size={16} />} title="Error" color="red">
+          Failed to load certificate details: {certificatesError}
+        </Alert>
       </Box>
     );
   }
@@ -107,6 +220,7 @@ const StudentDashboard = () => {
       </Box>
     );
   }
+
   return (
     <Box maw={800} mx="auto" p="md">
       <Stack gap="lg">
@@ -142,7 +256,7 @@ const StudentDashboard = () => {
                     size="lg"
                     radius="md"
                   >
-                    {detail.status ? "Aktif" : "Tidak AKtif"}
+                    {detail.status ? "Aktif" : "Tidak Aktif"}
                   </Badge>
                 </Group>
 
@@ -225,6 +339,110 @@ const StudentDashboard = () => {
                         {detail.enrollmentYear}
                       </Text>
                     </Group>
+                  )}
+                </Stack>
+              </Card>
+
+              {/* Certificates Information */}
+              <Card withBorder radius="md" p="lg">
+                <Group gap="xs" mb="md">
+                  <ThemeIcon variant="light" color="yellow" size="sm">
+                    <Award size={16} />
+                  </ThemeIcon>
+                  <Text fw={600} size="sm">
+                     Certificates
+                  </Text>
+                </Group>
+
+                <Stack gap="sm">
+                  {hasValidBadgesData ? (
+                    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+                      {certificates.map((cert) => (
+                        <Card
+                          key={cert.tokenId}
+                          withBorder
+                          radius="md"
+                          p="md"
+                          shadow="sm"
+                          style={{ overflow: "hidden" }}
+                        >
+                          {/* Certificate Image */}
+                          {cert.metadata?.image ? (
+                            <Image
+                              src={cert.metadata.image}
+                              alt={cert.name}
+                              height={100}
+                              fit="cover"
+                              radius="sm"
+                              mb="sm"
+                            />
+                          ) : (
+                            <Box
+                              style={{
+                                height: 100,
+                                background: "var(--mantine-color-gray-1)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                borderRadius: "var(--mantine-radius-sm)",
+                                marginBottom: "var(--mantine-spacing-sm)",
+                              }}
+                            >
+                              <Text c="dimmed" size="xs">
+                                No Image
+                              </Text>
+                            </Box>
+                          )}
+
+                          {/* Certificate Details */}
+                          <Stack gap="xs">
+                            <Text fw={600} size="sm" lineClamp={2}>
+                              {cert.name}
+                            </Text>
+                            <Badge
+                              variant="light"
+                              color={cert.isValid ? "green" : "red"}
+                              size="xs"
+                            >
+                              {cert.isValid ? "Valid" : "Expired"}
+                            </Badge>
+                            <Text size="xs" c="dimmed">
+                              Category: {cert.category}
+                            </Text>
+                            {cert.amount > 1 && (
+                              <Text size="xs" c="dimmed">
+                                Amount: {cert.amount}
+                              </Text>
+                            )}
+                            <Text size="xs" c="dimmed">
+                              Earned: {new Date(cert.earnedTimestamp * 1000).toLocaleDateString()}
+                            </Text>
+                            {cert.metadata?.description && (
+                              <Text size="xs" c="dimmed" lineClamp={2}>
+                                {cert.metadata.description}
+                              </Text>
+                            )}
+                            <Text size="xs" c="dimmed">
+                              ID: {cert.tokenId}
+                            </Text>
+                          </Stack>
+                        </Card>
+                      ))}
+                    </SimpleGrid>
+                  ) : (
+                    <Box ta="center" py="xl">
+                      <ThemeIcon size="xl" variant="light" color="gray" mx="auto" mb="md">
+                        <Award size={24} />
+                      </ThemeIcon>
+                      <Text size="sm" c="dimmed" mb="xs">
+                        No certificates found
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {isNoCertificatesError 
+                          ? "This student hasn't earned any certificates yet." 
+                          : "Complete courses to earn your first certificate!"}
+                      </Text>
+                    </Box>
                   )}
                 </Stack>
               </Card>
