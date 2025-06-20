@@ -15,6 +15,8 @@ import React from "react";
 import Header from "@/components/Header";
 import { BanknoteArrowDown, Send, Wallet, Zap } from "lucide-react";
 import { Colors } from "@/constants/colors";
+import HowItWorks from "./HowItWorks";
+import { Footer } from "@/components/Footer";
 
 const primaryBlue = "#0F56E6";
 const lighterBlue = "#3B82F6";
@@ -31,7 +33,7 @@ const Landing = () => {
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(to right, rgba(15,86,230,0.05), rgba(59,130,246,0.15))",
+              "linear-gradient(to right, rgba(15,86,230,0.05), rgba(59,130,246,0.1))",
             borderRadius: "9999px",
             filter: "blur(120px)",
             transform: "translateY(-50%) scale(1.5)",
@@ -68,6 +70,7 @@ const Landing = () => {
                   fontWeight: 700,
                   fontSize: "clamp(2.5rem, 5vw, 5rem)",
                   lineHeight: 1.1,
+                  overflowY: "hidden",
                 }}
               >
                 The Future of Campus Payments is Here
@@ -132,7 +135,7 @@ const Landing = () => {
         </Container>
         {/* Features */}
         <Box pt="200px">
-          <Title ta="center" size="32px">
+          <Title ta="center" size="38px">
             Simple. Seamless. Secure
           </Title>
           <Text mt="10px" size="md" c="dimmed" ta="center">
@@ -210,7 +213,18 @@ const Landing = () => {
             </Card>
           </SimpleGrid>
         </Box>
+        {/* Get Started */}
+        <Box pt="200px">
+          <Title ta="center" size="38px">
+            Simple Step to Get Started
+          </Title>
+          <Text mt="10px" size="md" c="dimmed" ta="center">
+            Join the Web3 Campus ecosystem in just a few clicks
+          </Text>
+          <HowItWorks />
+        </Box>
       </Box>
+      <Footer />
     </Box>
   );
 };
