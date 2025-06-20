@@ -2,15 +2,17 @@
 import Header from "@/components/Header";
 import SidebarItem from "@/components/SidebarItem";
 import { Box, Flex, Stack } from "@mantine/core";
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useLayoutEffect } from "react";
 import {
   BanknoteArrowDown,
   BanknoteArrowUp,
   History,
   ShieldUser,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Colors } from "@/constants/colors";
+import { useAccount, useReadContract } from "wagmi";
+import { contracts } from "@/constants/contracts";
 
 const sidebarItems = [
   { title: "Profile", icon: ShieldUser, path: "/dashboard/merchant" },
@@ -23,7 +25,26 @@ const sidebarItems = [
 ];
 
 const MerchantDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
+  const router = useRouter();
   const pathname = usePathname();
+  const { address, isConnected } = useAccount();
+  const { campusCredit } = contracts;
+
+  const { data: detailMerchant } = useReadContract({
+    address: campusCredit.address,
+    abi: campusCredit.abi,
+    functionName: "isMerchant",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  useLayoutEffect(() => {
+    if (!isConnected || !detailMerchant) {
+      router.push("/");
+    }
+  }, [isConnected, address]);
 
   return (
     <Box>

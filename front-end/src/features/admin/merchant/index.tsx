@@ -1,8 +1,11 @@
 "use client";
 import { Colors } from "@/constants/colors";
-import { Box, Paper, Table, Text } from "@mantine/core";
+import { Box, Button, Flex, Paper, Table, Text } from "@mantine/core";
 import React from "react";
 import MerchantTable from "./components/MerchantTable";
+import { useRouter } from "next/navigation";
+import { useReadContract } from "wagmi";
+import { contracts } from "@/constants/contracts";
 
 const merchantLists = [
   { id: 1, address: "0x123...da3", name: "Merchant 1" },
@@ -12,21 +15,28 @@ const merchantLists = [
 ];
 
 const AdminDashboardMerchant = () => {
+  const router = useRouter();
+
   return (
     <Box>
-      <Text size="24px" fw="700" lts="-0.25px" color={Colors.primary}>
-        Merchant Management
-      </Text>
+      <Flex align="center" justify="space-between">
+        <Text size="24px" fw="700" lts="-0.25px" color={Colors.primary}>
+          Merchant Management
+        </Text>
+        <Button onClick={() => router.push("/dashboard/admin/merchant/add")}>
+          Add Merchant
+        </Button>
+      </Flex>
       <Paper
         mt="20px"
         w="100%"
         radius="lg"
-        px='20px'
+        px="20px"
         style={{
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
         }}
       >
-        <Box mt='20px'>
+        <Box mt="20px">
           <MerchantTable merchants={merchantLists} />
         </Box>
       </Paper>

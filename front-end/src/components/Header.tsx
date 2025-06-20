@@ -64,7 +64,7 @@ const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
     } else {
       setRole("");
     }
-  }, [isConnected, detailStudent, detailMerchant]);
+  }, [isConnected, detailStudent, detailMerchant, isAdmin]);
 
   return (
     <Box

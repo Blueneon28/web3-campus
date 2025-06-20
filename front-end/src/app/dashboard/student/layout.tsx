@@ -2,7 +2,7 @@
 import Header from "@/components/Header";
 import SidebarItem from "@/components/SidebarItem";
 import { Box, Flex, Stack } from "@mantine/core";
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useLayoutEffect } from "react";
 import {
   BanknoteArrowDown,
   BanknoteArrowUp,
@@ -10,8 +10,10 @@ import {
   Send,
   ShieldUser,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Colors } from "@/constants/colors";
+import { useAccount, useReadContract } from "wagmi";
+import { contracts } from "@/constants/contracts";
 
 const sidebarItems = [
   { title: "Profile", icon: ShieldUser, path: "/dashboard/student" },
@@ -34,7 +36,26 @@ const sidebarItems = [
 ];
 
 const StudentDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
+  const router = useRouter();
   const pathname = usePathname();
+  const { address, isConnected } = useAccount();
+  const { studentID } = contracts;
+
+  const { data: detailStudent } = useReadContract({
+    address: studentID.address,
+    abi: studentID.abi,
+    functionName: "getStudentByAddress",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  useLayoutEffect(() => {
+    if (!isConnected || !detailStudent) {
+      router.push("/");
+    }
+  }, [isConnected, address]);
 
   return (
     <Box>
