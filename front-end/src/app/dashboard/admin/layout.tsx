@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import SidebarItem from "@/components/SidebarItem";
 import { Box, Flex, Stack } from "@mantine/core";
 import React, { PropsWithChildren } from "react";
-import { LayoutDashboard, ShieldUser, Store } from "lucide-react";
+import { LayoutDashboard, ShieldUser, Store, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Colors } from "@/constants/colors";
 
@@ -17,6 +17,7 @@ const sidebarItems = [
     path: "/dashboard/admin/student",
   },
   { title: "Merchant", icon: Store, path: "/dashboard/admin/merchant" },
+  { title: "Control", icon: Settings, path: "/dashboard/admin/control" },
 ];
 
 const AdminDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
