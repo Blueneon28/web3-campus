@@ -1,5 +1,5 @@
 "use client";
-import { Box, Flex, Text } from "@mantine/core";
+import { Box, Flex, Image, Text } from "@mantine/core";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import React, { useEffect, useState } from "react";
 import { useAccount, useReadContract } from "wagmi";
@@ -58,7 +58,13 @@ const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
       bg="white"
     >
       <Flex className="layout" align="center" justify="space-between">
-        <Text>Web3 Campus</Text>
+        <Image
+          src="/logo.png"
+          alt="Web3 Campus Logo"
+          h={55}
+          w="auto"
+          fit="contain"
+        />
         <Flex align="center" gap="4px">
           {role === "Student" ? (
             <Text>Student Dashboard</Text>
