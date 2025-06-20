@@ -37,12 +37,29 @@ const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
     },
   });
 
+  const { data: isAdmin } = useReadContract({
+    address: campusCredit.address,
+    abi: campusCredit.abi,
+    functionName: "hasRole",
+    args: address
+      ? [
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          address,
+        ]
+      : undefined,
+    query: {
+      enabled: !!address,
+    },
+  });
+
   useEffect(() => {
     if (isConnected) {
       if (detailStudent) {
         setRole("Student");
       } else if (detailMerchant) {
         setRole("Merchant");
+      } else if (isAdmin) {
+        setRole("Admin");
       }
     } else {
       setRole("");
