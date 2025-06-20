@@ -10,6 +10,7 @@ import Web3Provider from "@/providers/Web3Provider";
 import "./globals.css";
 import "@mantine/core/styles.css";
 import "@rainbow-me/rainbowkit/styles.css";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,6 +32,10 @@ export default function RootLayout({
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
         />
+        <Script
+        src="https://cdn.tailwindcss.com"
+        strategy="beforeInteractive" 
+      />
       </head>
       <body className={inter.className}>
         <Web3Provider>
