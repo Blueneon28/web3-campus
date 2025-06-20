@@ -50,7 +50,12 @@ const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
   return (
     <Box
       py="18px"
-      style={withBorder ? { borderBottom: "solid 1px rgb(237, 237, 237)" } : {}}
+      style={
+        withBorder
+          ? { borderBottom: "solid 1px rgb(237, 237, 237)", zIndex: 1000 }
+          : { zIndex: 1000 }
+      }
+      bg="white"
     >
       <Flex className="layout" align="center" justify="space-between">
         <Text>Web3 Campus</Text>
