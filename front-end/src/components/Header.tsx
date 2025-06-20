@@ -5,12 +5,14 @@ import React, { useEffect, useState } from "react";
 import { useAccount, useReadContract } from "wagmi";
 import { shortenAddress } from "@/utils/helpers";
 import { contracts } from "@/constants/contracts";
+import { useRouter } from "next/navigation";
 
 interface IHeaderProps {
   withBorder: boolean;
 }
 
 const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
+  const router = useRouter();
   const { address, isConnected } = useAccount();
   const [role, setRole] = useState<string>("");
   const { studentID, campusCredit } = contracts;
@@ -49,13 +51,17 @@ const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
 
   return (
     <Box
-      py="18px"
-      style={
-        withBorder
-          ? { borderBottom: "solid 1px rgb(237, 237, 237)", zIndex: 1000 }
-          : { zIndex: 1000 }
-      }
-      bg="white"
+      py="15px"
+      pos="fixed"
+      top="0px"
+      right="0px"
+      left="0px"
+      bg="rgba(255, 255, 255, 0.8)"
+      style={{
+        zIndex: "10",
+        backdropFilter: "blur(10px)",
+        borderBottom: "solid 1px rgb(237, 237, 237)",
+      }}
     >
       <Flex className="layout" align="center" justify="space-between">
         <Image
@@ -64,14 +70,34 @@ const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
           h={55}
           w="auto"
           fit="contain"
+          style={{ cursor: "pointer" }}
+          onClick={() => router.push("/")}
         />
-        <Flex align="center" gap="4px">
+        <Flex align="center" gap="10px">
           {role === "Student" ? (
-            <Text>Student Dashboard</Text>
+            <Text
+              onClick={() => router.push("/dashboard/student")}
+              style={{ cursor: "pointer" }}
+              fw="500"
+            >
+              Student Dashboard
+            </Text>
           ) : role === "Merchant" ? (
-            <Text>Merchant Dashboard</Text>
+            <Text
+              onClick={() => router.push("/dashboard/merchant")}
+              style={{ cursor: "pointer" }}
+              fw="500"
+            >
+              Merchant Dashboard
+            </Text>
           ) : role === "Admin" ? (
-            <Text>Admin Dashboard</Text>
+            <Text
+              onClick={() => router.push("/dashboard/admin")}
+              style={{ cursor: "pointer" }}
+              fw="500"
+            >
+              Admin Dashboard
+            </Text>
           ) : (
             <></>
           )}

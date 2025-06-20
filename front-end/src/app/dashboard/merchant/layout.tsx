@@ -28,7 +28,7 @@ const MerchantDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <Box>
       <Header withBorder />
-      <Flex className="layout" mt="50px">
+      <Flex className="layout" mt="120px">
         <Box w="20%">
           <Stack gap="30px">
             {sidebarItems.map(({ title, icon: Icon, path }) => {

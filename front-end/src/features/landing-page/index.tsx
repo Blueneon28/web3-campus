@@ -26,7 +26,7 @@ const Landing = () => {
   return (
     <Box>
       <Header withBorder={false} />
-      <Box className="layout" py="120px">
+      <Box className="layout" pt="180px" pb='120px'>
         {/* Hero */}
         <Box
           style={{
