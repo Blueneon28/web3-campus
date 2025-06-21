@@ -27,6 +27,11 @@ const sidebarItems = [
     icon: BanknoteArrowDown,
     path: "/dashboard/student/withdraw",
   },
+   {
+    title: "Course",
+    icon: BanknoteArrowUp,
+    path: "/dashboard/student/course",
+  },
   {
     title: "Transfer",
     icon: Send,
