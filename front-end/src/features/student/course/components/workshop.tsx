@@ -18,12 +18,13 @@ import {
   useAccount,
   useReadContract,
   useWriteContract,
+  useWatchContractEvent,
 } from "wagmi";
-import { waitForTransactionReceipt } from "@wagmi/core";
+import { waitForTransactionReceipt, readContract } from "@wagmi/core";
 import { config } from "@/providers/Web3Provider";
 import { contracts } from "@/constants/contracts";
 import { Colors } from "@/constants/colors";
-import { Check, Users, Calendar, Award, BookOpen } from "lucide-react";
+import { Check, Users, Calendar, Award, BookOpen, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface WorkshopSeries {
@@ -41,59 +42,135 @@ const StudentWorkshop = () => {
   const [selectedWorkshop, setSelectedWorkshop] = useState<WorkshopSeries | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingData, setIsLoadingData] = useState(true);
   const [sessionToComplete, setSessionToComplete] = useState<number | "">(1);
+  const [enrolledWorkshops, setEnrolledWorkshops] = useState<number[]>([]);
 
+  const { courseBadge } = contracts;
   const courseBadgeContract = {
-    address: contracts.courseBadge.address as `0x${string}`,
-    abi: contracts.courseBadge.abi,
+    address: courseBadge.address as `0x${string}`,
+    abi: courseBadge.abi,
   };
 
-  // Mock data untuk testing - ganti dengan real contract calls
-  useEffect(() => {
-    const loadMockData = () => {
-      setIsLoadingData(true);
-      // Simulate API call delay
-      setTimeout(() => {
-        const mockWorkshops: WorkshopSeries[] = [
-          {
-            id: 0,
-            name: "Solidity Fundamentals Series",
-            totalSessions: 5,
-            isActive: true,
-            participantCount: 23,
-          },
-          {
-            id: 1,
-            name: "Smart Contract Security",
-            totalSessions: 8,
-            isActive: true,
-            participantCount: 15,
-          },
-          {
-            id: 2,
-            name: "DeFi Development Bootcamp",
-            totalSessions: 12,
-            isActive: false,
-            participantCount: 7,
-          },
-          {
-            id: 3,
-            name: "NFT Marketplace Development",
-            totalSessions: 6,
-            isActive: true,
-            participantCount: 31,
-          },
-        ];
-        setWorkshops(mockWorkshops);
-        setIsLoadingData(false);
-      }, 1000);
-    };
+  // Read workshop count from contract
+  const { 
+    data: workshopCount, 
+    isLoading: isLoadingCount,
+    refetch: refetchCount 
+  } = useReadContract({
+    address: courseBadgeContract.address,
+    abi: courseBadgeContract.abi,
+    functionName: "getWorkshopCount",
+  });
 
-    if (isConnected) {
-      loadMockData();
+  // Read user's enrolled workshops
+  const { 
+    data: userWorkshops,
+    isLoading: isLoadingUserWorkshops,
+    refetch: refetchUserWorkshops 
+  } = useReadContract({
+    address: courseBadgeContract.address,
+    abi: courseBadgeContract.abi,
+    functionName: "getUserWorkshops",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && isConnected,
+    },
+  });
+
+  // Watch for new workshop creation events
+  useWatchContractEvent({
+    address: courseBadgeContract.address,
+    abi: courseBadgeContract.abi,
+    eventName: "WorkshopSeriesCreated",
+    onLogs: (logs) => {
+      console.log("New workshop created:", logs);
+      // Refetch workshop data when new workshop is created
+      refetchCount();
+      fetchWorkshopDetails();
+      toast.success("New workshop series available!", {
+        style: {
+          borderRadius: "12px",
+          fontFamily: "Inter, sans-serif",
+        },
+      });
+    },
+  });
+
+  // Watch for enrollment events
+  useWatchContractEvent({
+    address: courseBadgeContract.address,
+    abi: courseBadgeContract.abi,
+    eventName: "StudentEnrolled",
+    onLogs: (logs) => {
+      console.log("Student enrolled:", logs);
+      // Refetch user workshops and workshop details
+      refetchUserWorkshops();
+      fetchWorkshopDetails();
+    },
+  });
+
+  // Update enrolled workshops when userWorkshops changes
+  useEffect(() => {
+    if (userWorkshops && Array.isArray(userWorkshops)) {
+      setEnrolledWorkshops(userWorkshops.map(id => Number(id)));
     }
-  }, [isConnected]);
+  }, [userWorkshops]);
+
+  // Fetch individual workshop details
+  const fetchWorkshopDetails = async () => {
+    if (!workshopCount || !isConnected) return;
+
+    const workshopList: WorkshopSeries[] = [];
+    const count = Number(workshopCount);
+
+    for (let i = 0; i < count; i++) {
+      try {
+        // Read workshop details from contract using readContract from @wagmi/core
+        const workshopData = await readContract(config, {
+          address: courseBadgeContract.address,
+          abi: courseBadgeContract.abi,
+          functionName: "getWorkshopDetails",
+          args: [i],
+        }) as readonly [string, bigint, boolean, bigint];
+
+        workshopList.push({
+          id: i,
+          name: workshopData[0],
+          totalSessions: Number(workshopData[1]),
+          isActive: workshopData[2],
+          participantCount: Number(workshopData[3]),
+        });
+      } catch (error) {
+        console.error(`Error fetching workshop ${i}:`, error);
+        // If getWorkshopDetails doesn't exist, try alternative approach
+        try {
+          const workshopSeries = await readContract(config, {
+            address: courseBadgeContract.address,
+            abi: courseBadgeContract.abi,
+            functionName: "workshopSeries",
+            args: [i],
+          }) as readonly [string, bigint, boolean];
+
+          workshopList.push({
+            id: i,
+            name: workshopSeries[0],
+            totalSessions: Number(workshopSeries[1]),
+            isActive: workshopSeries[2],
+            participantCount: 0, // Default if not available
+          });
+        } catch (fallbackError) {
+          console.error(`Fallback error for workshop ${i}:`, fallbackError);
+        }
+      }
+    }
+
+    setWorkshops(workshopList);
+  };
+
+  // Fetch workshop details when count changes
+  useEffect(() => {
+    fetchWorkshopDetails();
+  }, [workshopCount, isConnected]);
 
   // Handle workshop enrollment
   const handleEnrollWorkshop = async (workshopId: number) => {
@@ -148,14 +225,9 @@ const StudentWorkshop = () => {
         },
       });
 
-      // Update local state to reflect enrollment
-      setWorkshops(prev => 
-        prev.map(w => 
-          w.id === workshopId 
-            ? { ...w, participantCount: w.participantCount + 1 }
-            : w
-        )
-      );
+      // Refetch data after successful enrollment
+      refetchUserWorkshops();
+      fetchWorkshopDetails();
     } catch (error: unknown) {
       console.error("Enrollment failed:", error);
       toast.dismiss();
@@ -233,11 +305,25 @@ const StudentWorkshop = () => {
     }
   };
 
-  // Mock function to check enrollment status
+  // Check if user is enrolled in a workshop
   const isEnrolled = (workshopId: number) => {
-    // For demo purposes, assume user is enrolled in workshop with id 0
-    return workshopId === 0;
+    return enrolledWorkshops.includes(workshopId);
   };
+
+  // Manual refresh function
+  const handleRefresh = () => {
+    refetchCount();
+    refetchUserWorkshops();
+    fetchWorkshopDetails();
+    toast.success("Data refreshed!", {
+      style: {
+        borderRadius: "12px",
+        fontFamily: "Inter, sans-serif",
+      },
+    });
+  };
+
+  const isLoadingData = isLoadingCount || isLoadingUserWorkshops;
 
   if (!isConnected) {
     return (
@@ -264,9 +350,19 @@ const StudentWorkshop = () => {
     <Box style={{ position: "relative" }}>
       <LoadingOverlay visible={isLoadingData} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       
-      <Title order={2} mb="xl" style={{ color: Colors.primary }}>
-        Workshop Series
-      </Title>
+      <Group justify="space-between" mb="xl">
+        <Title order={2} style={{ color: Colors.primary }}>
+          Workshop Series
+        </Title>
+        <Button
+          variant="light"
+          leftSection={<RefreshCw size={16} />}
+          onClick={handleRefresh}
+          size="sm"
+        >
+          Refresh
+        </Button>
+      </Group>
 
       <Grid>
         {workshops.map((workshop) => (
@@ -371,7 +467,7 @@ const StudentWorkshop = () => {
               No workshop series available yet
             </Text>
             <Text size="sm" c="dimmed" ta="center">
-              Check back later for upcoming workshops
+              Ask your admin to create workshop series first
             </Text>
           </Stack>
         </Card>
