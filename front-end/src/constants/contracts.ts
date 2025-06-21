@@ -8,7 +8,7 @@ export const CampusCreditABI = CAMPUS_CONTRACT_ABI_JSON;
 
 export const contracts = {
   campusCredit: {
-    address: "0xfCac010F8A91FB38c9666a70d48bc27C10C29eBF" as const,
+    address: "0x7d04A78146c401d249FFddf734bC1506029B6ee9" as const,
     abi: CampusCreditABI,
   },
   studentID: {
@@ -16,7 +16,7 @@ export const contracts = {
     abi: STUDENT_ID_CONTRACT_ABI_JSON,
   },
   courseBadge: {
-    address: "0xc523872D592BF0ba6477Fda6c10773097eB2Aa57" as const,
+    address: "0x186813C91fE45d7044131e30072E4a5CF4bd4770" as const,
     abi: COURSE_BADHE_CONTRACT_ABI_JSON,
   },
 } as const;
