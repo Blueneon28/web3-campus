@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useEffect, ReactNode } from "react";
+import React, { useState, useEffect } from "react";
 import { useAccount, useReadContract } from "wagmi";
 import { shortenAddress } from "@/utils/helpers";
 import { contracts } from "@/constants/contracts";
