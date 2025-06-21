@@ -30,7 +30,7 @@ const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
   const { data: detailMerchant } = useReadContract({
     address: campusCredit.address,
     abi: campusCredit.abi,
-    functionName: "isMerchant",
+    functionName: "merchantData",
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
@@ -52,14 +52,22 @@ const Header: React.FC<IHeaderProps> = ({ withBorder }) => {
     },
   });
 
+  const checkMerchant = () => {
+    if (detailMerchant && Array.isArray(detailMerchant)) {
+      if (detailMerchant[1]) {
+        setRole("Merchant");
+      }
+    }
+  };
+
   useEffect(() => {
     if (isConnected) {
       if (detailStudent) {
         setRole("Student");
-      } else if (detailMerchant) {
-        setRole("Merchant");
       } else if (isAdmin) {
         setRole("Admin");
+      } else {
+        checkMerchant();
       }
     } else {
       setRole("");

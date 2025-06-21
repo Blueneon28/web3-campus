@@ -37,7 +37,7 @@ const sidebarItems = [
     icon: Send,
     path: "/dashboard/student/transfer",
   },
-  { title: "History", icon: History, path: "/dashboard/student/history" },
+  // { title: "History", icon: History, path: "/dashboard/student/history" },
 ];
 
 const StudentDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
