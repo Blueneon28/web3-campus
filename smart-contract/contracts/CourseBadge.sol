@@ -26,7 +26,7 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
     uint256 public constant EVENT_BADGE_BASE = 2000;
     uint256 public constant ACHIEVEMENT_BASE = 3000;
     uint256 public constant WORKSHOP_BASE = 4000;
-    
+
     // Token metadata structure
     struct TokenInfo {
         string name;
@@ -36,26 +36,41 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
         uint256 validUntil; // 0 = no expiry
         address issuer;
     }
-    
+
     // TODO: Add mappings
     mapping(uint256 => TokenInfo) public tokenInfo;
     mapping(uint256 => string) private _tokenURIs;
-    
+
     // Track student achievements
     mapping(address => uint256[]) public studentBadges;
     mapping(uint256 => mapping(address => uint256)) public earnedAt; // Timestamp
-    
+
     // Counter untuk generate unique IDs
     uint256 private _certificateCounter;
     uint256 private _eventCounter;
     uint256 private _achievementCounter;
     uint256 private _workshopCounter;
 
-    event CertificateTypeCreated(uint256 indexed tokenId, string name, uint256 maxSupply);
-    event CertificateIssued(address indexed student, uint256 indexed tokenId, uint256 timestamp);
-    event EventBadgeMinted(uint256 indexed eventId, address[] attendees, uint256 amount);
-    event AchievementGranted(address indexed student, uint256 indexed tokenId, uint256 rarity);
-
+    event CertificateTypeCreated(
+        uint256 indexed tokenId,
+        string name,
+        uint256 maxSupply
+    );
+    event CertificateIssued(
+        address indexed student,
+        uint256 indexed tokenId,
+        uint256 timestamp
+    );
+    event EventBadgeMinted(
+        uint256 indexed eventId,
+        address[] attendees,
+        uint256 amount
+    );
+    event AchievementGranted(
+        address indexed student,
+        uint256 indexed tokenId,
+        uint256 rarity
+    );
 
     constructor() ERC1155("") {
         // TODO: Setup roles
@@ -113,13 +128,19 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
         // 4. Record timestamp
         // 5. Add to student's badge list
 
-        require(bytes(tokenInfo[certificateType].name).length > 0, "Certificate type does not exist");
+        require(
+            bytes(tokenInfo[certificateType].name).length > 0,
+            "Certificate type does not exist"
+        );
         require(
             totalSupply(certificateType) < tokenInfo[certificateType].maxSupply,
             "Max supply exceeded"
         );
 
-        require(balanceOf(student, certificateType) == 0, "Student already has this certificate");
+        require(
+            balanceOf(student, certificateType) == 0,
+            "Student already has this certificate"
+        );
         _mint(student, certificateType, 1, bytes(additionalData));
         earnedAt[certificateType][student] = block.timestamp;
         studentBadges[student].push(certificateType);
@@ -141,11 +162,11 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
         // Record participation
         require(eventId >= EVENT_BADGE_BASE, "Invalid event ID");
 
-         for (uint256 i = 0; i < attendees.length; i++) {
+        for (uint256 i = 0; i < attendees.length; i++) {
             address attendee = attendees[i];
-            
+
             _mint(attendee, eventId, amount, "");
-            
+
             if (earnedAt[eventId][attendee] == 0) {
                 earnedAt[eventId][attendee] = block.timestamp;
                 studentBadges[attendee].push(eventId);
@@ -158,9 +179,10 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
     /**
      * @dev Set metadata URI untuk token
      */
-    function setTokenURI(uint256 tokenId, string memory newuri) 
-        public onlyRole(URI_SETTER_ROLE) 
-    {
+    function setTokenURI(
+        uint256 tokenId,
+        string memory newuri
+    ) public onlyRole(URI_SETTER_ROLE) {
         // TODO: Store custom URI per token
         _tokenURIs[tokenId] = newuri;
     }
@@ -168,9 +190,9 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
     /**
      * @dev Get all badges owned by student
      */
-    function getStudentBadges(address student) 
-        public view returns (uint256[] memory) 
-    {
+    function getStudentBadges(
+        address student
+    ) public view returns (uint256[] memory) {
         // TODO: Return array of token IDs owned by student
         return studentBadges[student];
     }
@@ -178,9 +200,10 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
     /**
      * @dev Verify badge ownership dengan expiry check
      */
-    function verifyBadge(address student, uint256 tokenId) 
-        public view returns (bool isValid, uint256 earnedTimestamp) 
-    {
+    function verifyBadge(
+        address student,
+        uint256 tokenId
+    ) public view returns (bool isValid, uint256 earnedTimestamp) {
         // TODO: Check ownership and validity
         // 1. Check balance > 0
         // 2. Check not expired
@@ -216,11 +239,15 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
     ) internal override(ERC1155, ERC1155Supply) whenNotPaused {
         // TODO: Check transferability for each token
         for (uint i = 0; i < ids.length; i++) {
-            if (from != address(0) && to != address(0)) { // Not mint or burn
-                require(tokenInfo[ids[i]].isTransferable, "Token not transferable");
+            if (from != address(0) && to != address(0)) {
+                // Not mint or burn
+                require(
+                    tokenInfo[ids[i]].isTransferable,
+                    "Token not transferable"
+                );
             }
         }
-        
+
         super._update(from, to, ids, values);
     }
 
@@ -235,17 +262,14 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
     /**
      * @dev Check interface support
      */
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC1155, AccessControl)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC1155, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
     // Achievement System Functions
-    
+
     /**
      * @dev Grant achievement badge
      * Use case: Dean's list, competition winner, etc
@@ -259,16 +283,16 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
         // Generate achievement ID
         // Set limited supply based on rarity
         // Mint to deserving student
-         uint256 tokenId = ACHIEVEMENT_BASE + _achievementCounter;
+        uint256 tokenId = ACHIEVEMENT_BASE + _achievementCounter;
         _achievementCounter++;
 
         uint256 maxSupply;
         if (rarity == 1) {
             maxSupply = 1000; // Common
         } else if (rarity == 2) {
-            maxSupply = 100;  // Rare
+            maxSupply = 100; // Rare
         } else if (rarity == 3) {
-            maxSupply = 10;   // Legendary
+            maxSupply = 10; // Legendary
         } else {
             revert("Invalid rarity level");
         }
@@ -302,26 +326,26 @@ contract CourseBadge is ERC1155, AccessControl, Pausable, ERC1155Supply {
         // Return array of token IDs for each session
 
         require(totalSessions > 0, "Total sessions must be greater than 0");
-        
+
         uint256[] memory tokenIds = new uint256[](totalSessions);
 
         for (uint256 i = 0; i < totalSessions; i++) {
             uint256 tokenId = WORKSHOP_BASE + _workshopCounter;
             _workshopCounter++;
-            
-            string memory sessionName = string(abi.encodePacked(
-                seriesName, " - Session ", toString(i + 1)
-            ));
-            
+
+            string memory sessionName = string(
+                abi.encodePacked(seriesName, " - Session ", toString(i + 1))
+            );
+
             tokenInfo[tokenId] = TokenInfo({
                 name: sessionName,
                 category: "Workshop",
-                maxSupply: 500, 
+                maxSupply: 500,
                 isTransferable: true,
                 validUntil: 0,
                 issuer: msg.sender
             });
-            
+
             tokenIds[i] = tokenId;
         }
 

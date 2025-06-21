@@ -1,62 +1,126 @@
 [
-  { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
-  { "inputs": [], "name": "AccessControlBadConfirmation", "type": "error" },
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "AccessControlBadConfirmation",
+    "type": "error"
+  },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "bytes32", "name": "neededRole", "type": "bytes32" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "neededRole",
+        "type": "bytes32"
+      }
     ],
     "name": "AccessControlUnauthorizedAccount",
     "type": "error"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "spender", "type": "address" },
-      { "internalType": "uint256", "name": "allowance", "type": "uint256" },
-      { "internalType": "uint256", "name": "needed", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "allowance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "needed",
+        "type": "uint256"
+      }
     ],
     "name": "ERC20InsufficientAllowance",
     "type": "error"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "sender", "type": "address" },
-      { "internalType": "uint256", "name": "balance", "type": "uint256" },
-      { "internalType": "uint256", "name": "needed", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "balance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "needed",
+        "type": "uint256"
+      }
     ],
     "name": "ERC20InsufficientBalance",
     "type": "error"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "approver", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "approver",
+        "type": "address"
+      }
     ],
     "name": "ERC20InvalidApprover",
     "type": "error"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "receiver", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      }
     ],
     "name": "ERC20InvalidReceiver",
     "type": "error"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "sender", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
     ],
     "name": "ERC20InvalidSender",
     "type": "error"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "spender", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
     ],
     "name": "ERC20InvalidSpender",
     "type": "error"
   },
-  { "inputs": [], "name": "EnforcedPause", "type": "error" },
-  { "inputs": [], "name": "ExpectedPause", "type": "error" },
+  {
+    "inputs": [],
+    "name": "EnforcedPause",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExpectedPause",
+    "type": "error"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -122,6 +186,93 @@
         "internalType": "address",
         "name": "merchant",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "ProductAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      }
+    ],
+    "name": "ProductPurchased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "ProductUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
       }
     ],
     "name": "RegisterMerchantExecuted",
@@ -303,6 +454,25 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "UpdateMerchantExecuted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "user",
         "type": "address"
       },
@@ -319,56 +489,144 @@
   {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "MINTER_ROLE",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "PAUSER_ROLE",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "owner", "type": "address" },
-      { "internalType": "address", "name": "spender", "type": "address" }
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "imageURL",
+        "type": "string"
+      }
     ],
-    "name": "allowance",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "spender", "type": "address" },
-      { "internalType": "uint256", "name": "value", "type": "uint256" }
-    ],
-    "name": "approve",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "name": "addProduct",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      }
     ],
-    "name": "balanceOf",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "allowance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "value", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "spender",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "approve",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
     ],
     "name": "burn",
     "outputs": [],
@@ -377,8 +635,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" },
-      { "internalType": "uint256", "name": "value", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
     ],
     "name": "burnFrom",
     "outputs": [],
@@ -386,39 +652,206 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      }
+    ],
+    "name": "buyProduct",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "cashbackPercentage",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "dailySpendingLimit",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "decimals",
-    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" }
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      }
+    ],
+    "name": "getAllMerchantProducts",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "productId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "productName",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "price",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "quantity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "imageURL",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "soldCount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct CampusCredit.Product[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      }
+    ],
+    "name": "getMerchantSalesHistory",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "productId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "productName",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "quantity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalPaid",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "buyer",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct CampusCredit.SalesTransaction[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
     ],
     "name": "getRoleAdmin",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "grantRole",
     "outputs": [],
@@ -427,39 +860,229 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "hasRole",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "isMerchant",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "lastSpendingReset",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "name": "merchantName",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "lastSpendingReset",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "merchantData",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "merchantName",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "isMerchantActive",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "registeredAt",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "merchantProductCounter",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "merchantProducts",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "productName",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "imageURL",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "soldCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "merchantSalesCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "merchantSalesHistory",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "productName",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalPaid",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
     "name": "mint",
     "outputs": [],
@@ -469,7 +1092,13 @@
   {
     "inputs": [],
     "name": "name",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -483,13 +1112,23 @@
   {
     "inputs": [],
     "name": "paused",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
     "name": "processWithdrawal",
     "outputs": [],
@@ -498,8 +1137,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "merchant", "type": "address" },
-      { "internalType": "string", "name": "name", "type": "string" }
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
     ],
     "name": "registerMerchant",
     "outputs": [],
@@ -508,7 +1155,11 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
       {
         "internalType": "address",
         "name": "callerConfirmation",
@@ -522,8 +1173,16 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "role", "type": "bytes32" },
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "revokeRole",
     "outputs": [],
@@ -532,8 +1191,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "student", "type": "address" },
-      { "internalType": "uint256", "name": "limit", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "student",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "limit",
+        "type": "uint256"
+      }
     ],
     "name": "setDailyLimit",
     "outputs": [],
@@ -541,15 +1208,31 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "spentToday",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
     "name": "studentTopup",
     "outputs": [],
@@ -558,52 +1241,114 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+      {
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
     ],
     "name": "supportsInterface",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "symbol",
-    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "totalSupply",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "uint256", "name": "value", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
     ],
     "name": "transfer",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "from", "type": "address" },
-      { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "uint256", "name": "value", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
     ],
     "name": "transferFrom",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "merchant", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
     "name": "transferWithCashback",
     "outputs": [],
@@ -612,8 +1357,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
     "name": "transferWithLimit",
     "outputs": [],
@@ -629,9 +1382,64 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "merchant", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      }
     ],
     "name": "unregisterMerchant",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "name": "updateMerchant",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "price",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "imageURL",
+        "type": "string"
+      }
+    ],
+    "name": "updateProduct",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

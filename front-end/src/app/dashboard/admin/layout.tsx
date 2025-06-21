@@ -5,8 +5,14 @@ import Header from "@/components/Header";
 import SidebarItem from "@/components/SidebarItem";
 import { Box, Flex, Stack } from "@mantine/core";
 import React, { PropsWithChildren, useEffect, useLayoutEffect } from "react";
-import { LayoutDashboard, ShieldUser, Store, Settings } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  ShieldUser,
+  Store,
+  Settings,
+  Library,
+} from "lucide-react";
 import { Colors } from "@/constants/colors";
 import { useAccount, useReadContract } from "wagmi";
 import { contracts } from "@/constants/contracts";
@@ -19,6 +25,7 @@ const sidebarItems = [
     path: "/dashboard/admin/student",
   },
   { title: "Merchant", icon: Store, path: "/dashboard/admin/merchant" },
+  { title: "Course", icon: Library, path: "/dashboard/admin/course" },
   { title: "Control", icon: Settings, path: "/dashboard/admin/control" },
 ];
 
