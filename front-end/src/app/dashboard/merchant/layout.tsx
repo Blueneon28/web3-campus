@@ -21,7 +21,7 @@ const sidebarItems = [
     icon: BanknoteArrowDown,
     path: "/dashboard/merchant/withdraw",
   },
-  { title: "History", icon: History, path: "/dashboard/merchant/history" },
+  // { title: "History", icon: History, path: "/dashboard/merchant/history" },
 ];
 
 const MerchantDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -33,7 +33,7 @@ const MerchantDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
   const { data: detailMerchant } = useReadContract({
     address: campusCredit.address,
     abi: campusCredit.abi,
-    functionName: "isMerchant",
+    functionName: "merchantData",
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
