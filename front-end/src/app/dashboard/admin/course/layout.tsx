@@ -85,7 +85,7 @@ const CourseDashboardLayout: React.FC<PropsWithChildren> = ({ children }) => {
             })}
           </Stack>
         </Box>
-        <Box w="80%">{children}</Box>
+        <Box w="80%" pl='60px'>{children}</Box>
       </Flex>
     </Box>
   );

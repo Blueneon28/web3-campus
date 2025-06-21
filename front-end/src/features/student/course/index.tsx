@@ -10,21 +10,20 @@ import {
   Badge,
   Stack,
   Grid,
-  Notification,
   Modal,
   NumberInput,
+  LoadingOverlay,
 } from "@mantine/core";
 import {
   useAccount,
   useReadContract,
   useWriteContract,
-  useWatchContractEvent,
 } from "wagmi";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { config } from "@/providers/Web3Provider";
 import { contracts } from "@/constants/contracts";
 import { Colors } from "@/constants/colors";
-import { Check, Users, Calendar, Award } from "lucide-react";
+import { Check, Users, Calendar, Award, BookOpen } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface WorkshopSeries {
@@ -42,6 +41,7 @@ const StudentWorkshop = () => {
   const [selectedWorkshop, setSelectedWorkshop] = useState<WorkshopSeries | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [sessionToComplete, setSessionToComplete] = useState<number | "">(1);
 
   const courseBadgeContract = {
@@ -49,58 +49,63 @@ const StudentWorkshop = () => {
     abi: contracts.courseBadge.abi,
   };
 
-  // Read workshop count
-  const { data: workshopCount } = useReadContract({
-    ...courseBadgeContract,
-    functionName: "getWorkshopCount",
-  });
-
-  // Read user's enrolled workshops
-  const { data: userWorkshops } = useReadContract({
-    ...courseBadgeContract,
-    functionName: "getUserWorkshops",
-    args: [address],
-    account: address,
-  });
-
-  // Fetch workshop details
+  // Mock data untuk testing - ganti dengan real contract calls
   useEffect(() => {
-    const fetchWorkshops = async () => {
-      if (!workshopCount || !isConnected) return;
-
-      const workshopList: WorkshopSeries[] = [];
-      const count = Number(workshopCount);
-
-      for (let i = 0; i < count; i++) {
-        try {
-          // Fetch workshop details (you'll need to implement these functions in your contract)
-          const workshop = await config.readContract({
-            ...courseBadgeContract,
-            functionName: "getWorkshopDetails",
-            args: [i],
-          });
-
-          workshopList.push({
-            id: i,
-            name: workshop[0] as string,
-            totalSessions: Number(workshop[1]),
-            isActive: workshop[2] as boolean,
-            participantCount: Number(workshop[3]),
-          });
-        } catch (error) {
-          console.error(`Error fetching workshop ${i}:`, error);
-        }
-      }
-
-      setWorkshops(workshopList);
+    const loadMockData = () => {
+      setIsLoadingData(true);
+      // Simulate API call delay
+      setTimeout(() => {
+        const mockWorkshops: WorkshopSeries[] = [
+          {
+            id: 0,
+            name: "Solidity Fundamentals Series",
+            totalSessions: 5,
+            isActive: true,
+            participantCount: 23,
+          },
+          {
+            id: 1,
+            name: "Smart Contract Security",
+            totalSessions: 8,
+            isActive: true,
+            participantCount: 15,
+          },
+          {
+            id: 2,
+            name: "DeFi Development Bootcamp",
+            totalSessions: 12,
+            isActive: false,
+            participantCount: 7,
+          },
+          {
+            id: 3,
+            name: "NFT Marketplace Development",
+            totalSessions: 6,
+            isActive: true,
+            participantCount: 31,
+          },
+        ];
+        setWorkshops(mockWorkshops);
+        setIsLoadingData(false);
+      }, 1000);
     };
 
-    fetchWorkshops();
-  }, [workshopCount, isConnected]);
+    if (isConnected) {
+      loadMockData();
+    }
+  }, [isConnected]);
 
   // Handle workshop enrollment
   const handleEnrollWorkshop = async (workshopId: number) => {
-    if (!isConnected) return;
+    if (!isConnected) {
+      toast.error("Please connect your wallet first", {
+        style: {
+          borderRadius: "12px",
+          fontFamily: "Inter, sans-serif",
+        },
+      });
+      return;
+    }
 
     setIsLoading(true);
     toast.loading("Enrolling in workshop...", {
@@ -114,9 +119,10 @@ const StudentWorkshop = () => {
 
     try {
       const result = await writeContractAsync({
-        ...courseBadgeContract,
+        address: courseBadgeContract.address,
+        abi: courseBadgeContract.abi,
         functionName: "enrollInWorkshop",
-        args: [workshopId],
+        args: [BigInt(workshopId)],
         account: address as `0x${string}`,
       });
 
@@ -141,10 +147,19 @@ const StudentWorkshop = () => {
           fontFamily: "Inter, sans-serif",
         },
       });
-    } catch (error) {
+
+      // Update local state to reflect enrollment
+      setWorkshops(prev => 
+        prev.map(w => 
+          w.id === workshopId 
+            ? { ...w, participantCount: w.participantCount + 1 }
+            : w
+        )
+      );
+    } catch (error: any) {
       console.error("Enrollment failed:", error);
       toast.dismiss();
-      toast.error("Enrollment failed. Please try again.", {
+      toast.error(error?.message || "Enrollment failed. Please try again.", {
         style: {
           borderRadius: "12px",
           fontFamily: "Inter, sans-serif",
@@ -171,9 +186,10 @@ const StudentWorkshop = () => {
 
     try {
       const result = await writeContractAsync({
-        ...courseBadgeContract,
+        address: courseBadgeContract.address,
+        abi: courseBadgeContract.abi,
         functionName: "completeSession",
-        args: [selectedWorkshop.id, sessionToComplete],
+        args: [BigInt(selectedWorkshop.id), BigInt(sessionToComplete)],
         account: address as `0x${string}`,
       });
 
@@ -201,10 +217,10 @@ const StudentWorkshop = () => {
 
       setModalOpened(false);
       setSessionToComplete(1);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Session completion failed:", error);
       toast.dismiss();
-      toast.error("Failed to complete session. Please try again.", {
+      toast.error(error?.message || "Failed to complete session. Please try again.", {
         style: {
           borderRadius: "12px",
           fontFamily: "Inter, sans-serif",
@@ -215,15 +231,38 @@ const StudentWorkshop = () => {
     }
   };
 
-  // Check if user is enrolled in a workshop
+  // Mock function to check enrollment status
   const isEnrolled = (workshopId: number) => {
-    if (!userWorkshops) return false;
-    return (userWorkshops as number[]).includes(workshopId);
+    // For demo purposes, assume user is enrolled in workshop with id 0
+    return workshopId === 0;
   };
 
+  if (!isConnected) {
+    return (
+      <Box>
+        <Title order={2} mb="xl" style={{ color: Colors.primary }}>
+          Workshop Series
+        </Title>
+        <Card padding="xl" radius="md" withBorder>
+          <Stack align="center" gap="md">
+            <BookOpen size={48} color="#ced4da" />
+            <Text size="lg" c="dimmed" ta="center">
+              Please connect your wallet
+            </Text>
+            <Text size="sm" c="dimmed" ta="center">
+              Connect your wallet to view and enroll in workshops
+            </Text>
+          </Stack>
+        </Card>
+      </Box>
+    );
+  }
+
   return (
-    <Box>
-      <Title order={2} mb="xl" color={Colors.primary}>
+    <Box style={{ position: "relative" }}>
+      <LoadingOverlay visible={isLoadingData} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+      
+      <Title order={2} mb="xl" style={{ color: Colors.primary }}>
         Workshop Series
       </Title>
 
@@ -237,72 +276,82 @@ const StudentWorkshop = () => {
               withBorder
               style={{
                 height: "100%",
-                transition: "transform 0.2s ease",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                cursor: "pointer",
               }}
               styles={{
                 root: {
                   "&:hover": {
-                    transform: "translateY(-4px)",
+                    transform: "translateY(-2px)",
                     boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
                   },
                 },
               }}
             >
-              <Stack gap="md">
+              <Stack gap="md" style={{ height: "100%" }}>
                 <Group justify="space-between" align="flex-start">
-                  <Text fw={600} size="lg" lineClamp={2}>
+                  <Text fw={600} size="lg" lineClamp={2} style={{ flex: 1 }}>
                     {workshop.name}
                   </Text>
                   <Badge
                     color={workshop.isActive ? "green" : "gray"}
                     variant="light"
+                    size="sm"
                   >
                     {workshop.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </Group>
 
-                <Group gap="sm">
-                  <Calendar size={16} />
-                  <Text size="sm" c="dimmed">
-                    {workshop.totalSessions} Sessions
-                  </Text>
-                </Group>
+                <Stack gap="xs">
+                  <Group gap="sm">
+                    <Calendar size={16} color={Colors.primary} />
+                    <Text size="sm" c="dimmed">
+                      {workshop.totalSessions} Sessions
+                    </Text>
+                  </Group>
 
-                <Group gap="sm">
-                  <Users size={16} />
-                  <Text size="sm" c="dimmed">
-                    {workshop.participantCount} Participants
-                  </Text>
-                </Group>
+                  <Group gap="sm">
+                    <Users size={16} color={Colors.primary} />
+                    <Text size="sm" c="dimmed">
+                      {workshop.participantCount} Participants
+                    </Text>
+                  </Group>
+                </Stack>
 
                 <Group mt="auto" gap="xs">
                   {isEnrolled(workshop.id) ? (
-                    <>
-                      <Badge color="blue" variant="light" leftSection={<Check size={12} />}>
+                    <Stack gap="xs" style={{ width: "100%" }}>
+                      <Badge 
+                        color="blue" 
+                        variant="light" 
+                        leftSection={<Check size={12} />}
+                        style={{ alignSelf: "flex-start" }}
+                      >
                         Enrolled
                       </Badge>
                       <Button
                         variant="light"
-                        size="xs"
+                        size="sm"
                         leftSection={<Award size={16} />}
                         onClick={() => {
                           setSelectedWorkshop(workshop);
                           setModalOpened(true);
                         }}
+                        fullWidth
                       >
                         Complete Session
                       </Button>
-                    </>
+                    </Stack>
                   ) : (
                     <Button
                       fullWidth
                       variant="filled"
-                      color={Colors.primary}
+                      style={{ backgroundColor: Colors.primary }}
                       disabled={!workshop.isActive || isLoading}
                       loading={isLoading}
                       onClick={() => handleEnrollWorkshop(workshop.id)}
                     >
-                      Enroll Now
+                      {workshop.isActive ? "Enroll Now" : "Workshop Inactive"}
                     </Button>
                   )}
                 </Group>
@@ -312,7 +361,7 @@ const StudentWorkshop = () => {
         ))}
       </Grid>
 
-      {workshops.length === 0 && (
+      {workshops.length === 0 && !isLoadingData && (
         <Card padding="xl" radius="md" withBorder>
           <Stack align="center" gap="md">
             <Calendar size={48} color="#ced4da" />
@@ -329,18 +378,25 @@ const StudentWorkshop = () => {
       {/* Session Completion Modal */}
       <Modal
         opened={modalOpened}
-        onClose={() => setModalOpened(false)}
+        onClose={() => {
+          setModalOpened(false);
+          setSessionToComplete(1);
+        }}
         title={
-          <Text fw={600} size="lg">
-            Complete Session
-          </Text>
+          <Group gap="sm">
+            <Award size={20} color={Colors.primary} />
+            <Text fw={600} size="lg">
+              Complete Session
+            </Text>
+          </Group>
         }
         centered
+        size="md"
       >
         <Stack gap="md">
           <Text size="sm" c="dimmed">
             Mark a session as completed for:{" "}
-            <Text span fw={600}>
+            <Text span fw={600} style={{ color: Colors.primary }}>
               {selectedWorkshop?.name}
             </Text>
           </Text>
@@ -356,12 +412,26 @@ const StudentWorkshop = () => {
             min={1}
             max={selectedWorkshop?.totalSessions || 1}
             required
+            styles={{
+              input: {
+                height: "45px",
+                borderColor: "#ced4da",
+                borderRadius: "8px",
+              },
+            }}
           />
+
+          <Text size="xs" c="dimmed">
+            Total sessions: {selectedWorkshop?.totalSessions}
+          </Text>
 
           <Group justify="flex-end" mt="md">
             <Button
               variant="subtle"
-              onClick={() => setModalOpened(false)}
+              onClick={() => {
+                setModalOpened(false);
+                setSessionToComplete(1);
+              }}
               disabled={isLoading}
             >
               Cancel
@@ -370,8 +440,9 @@ const StudentWorkshop = () => {
               onClick={handleCompleteSession}
               loading={isLoading}
               disabled={sessionToComplete === "" || isLoading}
+              style={{ backgroundColor: Colors.primary }}
             >
-              Complete Session
+              {isLoading ? "Processing..." : "Complete Session"}
             </Button>
           </Group>
         </Stack>

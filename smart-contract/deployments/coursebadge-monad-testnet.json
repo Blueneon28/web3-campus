@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "contractAddress": "0xE910B50B5D92a3A65A817370a273d6E41eE00031",
   "deployerAddress": "0x027822307511a055eB0f5907F2685DaB1204e14B",
   "network": "monadTestnet",
@@ -7,4 +8,13 @@
   "timestamp": "2025-06-20T11:41:46.610Z",
   "txHash": "0x868909003484cf51b9e6fc12c8b40d6ee60d0f99528b39e0e768ffd5d05e90db"
 
+=======
+  "contractAddress": "0x186813C91fE45d7044131e30072E4a5CF4bd4770",
+  "deployerAddress": "0xa4fFcBf8Bf39BC52FD316032D3e46b666bE342b6",
+  "network": "monadTestnet",
+  "chainId": "10143",
+  "blockExplorer": "https://testnet.monadexplorer.com/address/0x186813C91fE45d7044131e30072E4a5CF4bd4770",
+  "timestamp": "2025-06-21T02:18:53.639Z",
+  "txHash": "0x37be513094e9c52274ab41eccf35aff4f00403fb4f095570e3c3d19d3f03afb0"
+>>>>>>> 6fdd4bffaef1487a4f0dcf14ac263bc3e56ed81d
 }
