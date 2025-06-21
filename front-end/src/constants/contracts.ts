@@ -2,7 +2,9 @@
 
 import CAMPUS_CONTRACT_ABI_JSON from "./abi/CampusCreditABI.json";
 import STUDENT_ID_CONTRACT_ABI_JSON from "./abi/StudentIDAbi.json";
-import COURSE_BADGE_ABI_JSON from "./abi/CourseBadgeABI.json"
+
+import COURSE_BADHE_CONTRACT_ABI_JSON from "./abi/CourseBadgeABI.json";
+
 
 export const CampusCreditABI = CAMPUS_CONTRACT_ABI_JSON;
 
@@ -16,7 +18,9 @@ export const contracts = {
     abi: STUDENT_ID_CONTRACT_ABI_JSON,
   },
   courseBadge: {
-    address: '0x027822307511a055eB0f5907F2685DaB1204e14B' as const,
-    abi:  COURSE_BADGE_ABI_JSON,
+
+    address: "0xc523872D592BF0ba6477Fda6c10773097eB2Aa57" as const,
+    abi: COURSE_BADHE_CONTRACT_ABI_JSON,
+
   },
 } as const;

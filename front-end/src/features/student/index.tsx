@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import { useAccount, useReadContract } from "wagmi";
 import { shortenAddress } from "@/utils/helpers";
 import { contracts } from "@/constants/contracts";
@@ -25,8 +25,24 @@ import {
   Image,
   Skeleton,
   Alert,
+  Button,
+  Modal,
+  Select,
+  LoadingOverlay,
 } from "@mantine/core";
-import { User, GraduationCap, IdCard, MapPin, Copy, Check, Award, AlertCircle } from "lucide-react";
+import { 
+  User, 
+  GraduationCap, 
+  IdCard, 
+  MapPin, 
+  Copy, 
+  Check, 
+  Award, 
+  AlertCircle,
+  Plus,
+  Trash2,
+  Edit
+} from "lucide-react";
 
 interface StudentDetail {
   tokenId: number;
@@ -54,9 +70,79 @@ interface CertificateDetail {
   };
 }
 
+interface CertificateType {
+  id: string;
+  name: string;
+  maxSupply: number;
+  currentSupply: number;
+  uri: string;
+  isActive: boolean;
+}
+
 const courseBadgeContract = {
   address: contracts.courseBadge.address,
   abi: contracts.courseBadge.abi,
+};
+
+// Custom hook untuk mengambil certificate types yang tersedia
+const useCertificateTypes = () => {
+  const [certificateTypes, setCertificateTypes] = useState<CertificateType[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Read contract untuk mendapatkan jumlah certificate types
+  const { data: certificateTypeCount } = useReadContract({
+    ...courseBadgeContract,
+    functionName: "getCertificateTypeCount",
+    query: { 
+      enabled: true,
+      staleTime: 30000,
+    },
+  });
+
+  useEffect(() => {
+    const fetchCertificateTypes = async () => {
+      if (!certificateTypeCount || Number(certificateTypeCount) === 0) {
+        setCertificateTypes([]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const types: CertificateType[] = [];
+        const count = Number(certificateTypeCount);
+        
+        // Fetch details for each certificate type
+        for (let i = 0; i < count; i++) {
+          try {
+            // Assuming there's a function to get certificate type details by index
+            // You'll need to implement this in your smart contract
+            const typeData = {
+              id: i.toString(),
+              name: `Certificate Type ${i + 1}`,
+              maxSupply: 100,
+              currentSupply: 0,
+              uri: `https://example.com/metadata/${i}.json`,
+              isActive: true,
+            };
+            types.push(typeData);
+          } catch (error) {
+            console.error(`Error fetching certificate type ${i}:`, error);
+          }
+        }
+        
+        setCertificateTypes(types);
+      } catch (error) {
+        console.error("Error fetching certificate types:", error);
+        setCertificateTypes([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCertificateTypes();
+  }, [certificateTypeCount]);
+
+  return { certificateTypes, isLoading };
 };
 
 // Custom hook untuk mengambil detail sertifikat
@@ -79,6 +165,8 @@ const useCertificateDetails = (address: `0x${string}` | undefined, studentBadges
         const certDetails = await Promise.all(
           studentBadges.map(async (tokenId) => {
             try {
+              // Here you would fetch actual certificate data from your contract
+              // For now, using placeholder data
               return {
                 tokenId: tokenId.toString(),
                 name: "Certificate " + tokenId.toString(),
@@ -87,7 +175,10 @@ const useCertificateDetails = (address: `0x${string}` | undefined, studentBadges
                 amount: 1,
                 isValid: true,
                 earnedTimestamp: Date.now() / 1000,
-                metadata: {},
+                metadata: {
+                  description: "Certificate earned through course completion",
+                  image: undefined,
+                },
               };
             } catch (error) {
               console.error(`Error fetching certificate ${tokenId}:`, error);
@@ -120,11 +211,89 @@ const useCertificateDetails = (address: `0x${string}` | undefined, studentBadges
   return { certificates, isLoading, error };
 };
 
-const StudentDashboard = () => {
+// Admin Certificate Award Modal Component
+const AwardCertificateModal = ({ 
+  opened, 
+  onClose, 
+  studentAddress, 
+  certificateTypes,
+  onAwardSuccess 
+}: {
+  opened: boolean;
+  onClose: () => void;
+  studentAddress: string;
+  certificateTypes: CertificateType[];
+  onAwardSuccess: () => void;
+}) => {
+  const [selectedType, setSelectedType] = useState<string>("");
+  const [isAwarding, setIsAwarding] = useState(false);
+
+  const handleAward = async () => {
+    if (!selectedType || !studentAddress) return;
+
+    setIsAwarding(true);
+    try {
+      // Here you would call your smart contract function to award the certificate
+      // Example: writeContract for awardCertificate function
+      console.log("Awarding certificate type", selectedType, "to", studentAddress);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      onAwardSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Error awarding certificate:", error);
+    } finally {
+      setIsAwarding(false);
+    }
+  };
+
+  return (
+    <Modal opened={opened} onClose={onClose} title="Award Certificate" centered>
+      <LoadingOverlay visible={isAwarding} />
+      <Stack gap="md">
+        <Select
+          label="Certificate Type"
+          placeholder="Select certificate to award"
+          data={certificateTypes.map(type => ({
+            value: type.id,
+            label: `${type.name} (${type.currentSupply}/${type.maxSupply})`,
+          }))}
+          value={selectedType}
+          onChange={(value) => setSelectedType(value || "")}
+        />
+        
+        <Text size="sm" c="dimmed">
+          Student Address: {shortenAddress(studentAddress)}
+        </Text>
+
+        <Group justify="flex-end" mt="md">
+          <Button variant="outline" onClick={onClose} disabled={isAwarding}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleAward} 
+            disabled={!selectedType || isAwarding}
+            loading={isAwarding}
+          >
+            Award Certificate
+          </Button>
+        </Group>
+      </Stack>
+    </Modal>
+  );
+};
+
+const StudentDashboard: React.FC<{ isAdminView?: boolean }> = ({ isAdminView = false }) => {
   const { address, isConnected } = useAccount();
   const { studentID } = contracts;
   const [detail, setDetail] = useState<StudentDetail>();
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false);
+  const [awardModalOpened, setAwardModalOpened] = useState(false);
+
+  // Get certificate types for admin
+  const { certificateTypes, isLoading: isLoadingTypes } = useCertificateTypes();
 
   // Read contract untuk mendapatkan detail student
   const { data: detailStudent } = useReadContract({
@@ -136,22 +305,22 @@ const StudentDashboard = () => {
   });
 
   // Read contract untuk mendapatkan daftar certificate
-  const { data: studentBadges, isLoading: isLoadingBadges, error: badgesError } = useReadContract({
+  const { data: studentBadges, isLoading: isLoadingBadges, error: badgesError, refetch: refetchBadges } = useReadContract({
     ...courseBadgeContract,
     functionName: "getStudentBadges",
     args: address ? [address as `0x${string}`] : undefined,
     query: { 
       enabled: !!address,
-      retry: false, // Don't retry on error
-      staleTime: 30000, // Cache for 30 seconds
+      retry: false,
+      staleTime: 30000,
     },
   });
 
   // Menggunakan custom hook untuk detail sertifikat
- const { certificates, isLoading: isLoadingCertificates, error: certificatesError } = useCertificateDetails(
-  address,
-  studentBadges as bigint[] | undefined
-);
+  const { certificates, isLoading: isLoadingCertificates, error: certificatesError } = useCertificateDetails(
+    address,
+    studentBadges as bigint[] | undefined
+  );
 
   const isNoCertificatesError = badgesError?.message?.includes('returned no data ("0x")');
   const hasValidBadgesData = studentBadges && Array.isArray(studentBadges) && studentBadges.length > 0;
@@ -177,6 +346,11 @@ const StudentDashboard = () => {
     }
     setIsLoadingProfile(false);
   }, [detailStudent, isConnected, address]);
+
+  const handleAwardSuccess = () => {
+    // Refresh certificates data
+    refetchBadges();
+  };
 
   if (isLoadingProfile || isLoadingBadges || isLoadingCertificates) {
     return (
@@ -228,12 +402,25 @@ const StudentDashboard = () => {
         <Group gap="md" align="center">
           <div style={{ flex: 1 }}>
             <Title order={2} c="dark.8">
-              Student Profile
+              {isAdminView ? "Student Management" : "Student Profile"}
             </Title>
             <Text size="sm" c="dimmed">
-              View detailed information about the student
+              {isAdminView ? "Manage student certificates and information" : "View detailed information about the student"}
             </Text>
           </div>
+          
+          {/* Admin Controls */}
+          {isAdminView && (
+            <Group>
+              <Button
+                leftSection={<Plus size={16} />}
+                onClick={() => setAwardModalOpened(true)}
+                disabled={isLoadingTypes}
+              >
+                Award Certificate
+              </Button>
+            </Group>
+          )}
         </Group>
 
         {/* Main Profile Card */}
@@ -345,13 +532,28 @@ const StudentDashboard = () => {
 
               {/* Certificates Information */}
               <Card withBorder radius="md" p="lg">
-                <Group gap="xs" mb="md">
-                  <ThemeIcon variant="light" color="yellow" size="sm">
-                    <Award size={16} />
-                  </ThemeIcon>
-                  <Text fw={600} size="sm">
-                     Certificates
-                  </Text>
+                <Group gap="xs" mb="md" justify="space-between">
+                  <Group gap="xs">
+                    <ThemeIcon variant="light" color="yellow" size="sm">
+                      <Award size={16} />
+                    </ThemeIcon>
+                    <Text fw={600} size="sm">
+                      Certificates ({certificates.length})
+                    </Text>
+                  </Group>
+                  
+                  {isAdminView && hasValidBadgesData ? (
+                    <Group gap="xs">
+                      <ActionIcon
+                        variant="light"
+                        color="green"
+                        size="sm"
+                        onClick={() => setAwardModalOpened(true)}
+                      >
+                        <Plus size={12} />
+                      </ActionIcon>
+                    </Group>
+                  ) : null}
                 </Group>
 
                 <Stack gap="sm">
@@ -396,9 +598,30 @@ const StudentDashboard = () => {
 
                           {/* Certificate Details */}
                           <Stack gap="xs">
-                            <Text fw={600} size="sm" lineClamp={2}>
-                              {cert.name}
-                            </Text>
+                            <Group justify="space-between" align="flex-start">
+                              <Text fw={600} size="sm" lineClamp={2} style={{ flex: 1 }}>
+                                {cert.name}
+                              </Text>
+                              {isAdminView && (
+                                <Group gap={4}>
+                                  <ActionIcon
+                                    variant="light"
+                                    color="blue"
+                                    size="xs"
+                                  >
+                                    <Edit size={10} />
+                                  </ActionIcon>
+                                  <ActionIcon
+                                    variant="light"
+                                    color="red"
+                                    size="xs"
+                                  >
+                                    <Trash2 size={10} />
+                                  </ActionIcon>
+                                </Group>
+                              )}
+                            </Group>
+                            
                             <Badge
                               variant="light"
                               color={cert.isValid ? "green" : "red"}
@@ -442,6 +665,17 @@ const StudentDashboard = () => {
                           ? "This student hasn't earned any certificates yet." 
                           : "Complete courses to earn your first certificate!"}
                       </Text>
+                      {isAdminView && (
+                        <Button
+                          variant="light"
+                          size="xs"
+                          mt="md"
+                          leftSection={<Plus size={14} />}
+                          onClick={() => setAwardModalOpened(true)}
+                        >
+                          Award First Certificate
+                        </Button>
+                      )}
                     </Box>
                   )}
                 </Stack>
@@ -450,6 +684,15 @@ const StudentDashboard = () => {
           </Stack>
         </Paper>
       </Stack>
+
+      {/* Award Certificate Modal */}
+      <AwardCertificateModal
+        opened={awardModalOpened}
+        onClose={() => setAwardModalOpened(false)}
+        studentAddress={address || ""}
+        certificateTypes={certificateTypes}
+        onAwardSuccess={handleAwardSuccess}
+      />
     </Box>
   );
 };
