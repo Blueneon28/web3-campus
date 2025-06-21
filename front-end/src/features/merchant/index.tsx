@@ -14,7 +14,7 @@ const MerchantDashboard = () => {
   const { data: detailMerchant } = useReadContract({
     address: campusCredit.address,
     abi: campusCredit.abi,
-    functionName: "merchantName",
+    functionName: "merchantData",
     args: address ? [address] : undefined,
     query: {
       enabled: !!address,
@@ -30,7 +30,9 @@ const MerchantDashboard = () => {
   useEffect(() => {
     setLoading(true);
 
-    setMerchantName(detailMerchant as string);
+    if (detailMerchant && Array.isArray(detailMerchant)) {
+      setMerchantName(detailMerchant[1]);
+    }
 
     setLoading(false);
   }, [detailMerchant, address]);
