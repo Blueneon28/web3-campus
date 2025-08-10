@@ -1,5 +1,4 @@
 /** @format */
-
 import React from "react";
 
 const CourseDashboard = () => {
